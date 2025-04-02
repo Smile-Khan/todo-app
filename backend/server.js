@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const authRoutes = require("./routes/authRoutes");
+
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +18,9 @@ mongoose.connect(process.env.MONGO_URI, {
 })
     .then(() => console.log('✅ MongoDB Connected Successfully!'))
     .catch(err => console.error('❌ MongoDB Connection Failed:', err));
+
+    // ✅ Use Authentication Routes
+app.use("/api/auth", authRoutes);
 
 // ✅ Todo Schema & Model
 const todoSchema = new mongoose.Schema({
