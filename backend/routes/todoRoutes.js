@@ -28,20 +28,31 @@ router.get("/:id", authMiddleware, async (req, res) => {
 // ✅ POST - Add a new todo (linked to user)
 router.post("/", authMiddleware, async (req, res) => {
   try {
+    console.log("🔹 Received Data:", req.body); // ✅ Log incoming data
+
+    if (!req.body.text) {
+      console.log("❌ Error: Text field is missing in request body");
+      return res.status(400).json({ error: "Text is required" });
+    }
+
     const newTodo = new Todo({ 
       text: req.body.text, 
       completed: false, 
       priority: req.body.priority || "Low", 
       dueDate: req.body.dueDate, 
-      user: req.user.userId  // ✅ Assign todo to logged-in user
+      user: req.user.userId  
     });
 
     const savedTodo = await newTodo.save();
+    console.log("✅ New Todo Created:", savedTodo); // ✅ Log saved todo
+
     res.json(savedTodo);
   } catch (error) {
+    console.error("❌ Server Error:", error);
     res.status(500).json({ error: "Failed to add todo" });
   }
 });
+
 
 // ✅ PUT - Update todo (only if it belongs to the user)
 router.put("/:id", authMiddleware, async (req, res) => {
