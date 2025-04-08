@@ -1,11 +1,11 @@
-const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-const authMiddleware = require("../middleware/authMiddleware");
+import express from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret"; 
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 // ✅ Register
 router.post("/register", async (req, res) => {
@@ -19,7 +19,6 @@ router.post("/register", async (req, res) => {
         user = new User({ name, email, password: hashedPassword });
         await user.save();
 
-        // Generate JWT Token for the new user
         const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
 
         res.json({ message: "User registered successfully", token });
@@ -38,7 +37,6 @@ router.post("/login", async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-        // Generate JWT Token
         const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
 
         res.json({ message: "Login successful", token });
@@ -47,10 +45,10 @@ router.post("/login", async (req, res) => {
     }
 });
 
-// ✅ Protected Route - Get User Profile
-router.get("/profile", authMiddleware, async (req, res) => {
+// ✅ Protected Profile Route
+router.get("/profile", protect, async (req, res) => {
     try {
-        const user = await User.findById(req.user.userId).select("-password"); // Exclude password field
+        const user = await User.findById(req.user.userId).select("-password");
         if (!user) return res.status(404).json({ error: "User not found" });
 
         res.json({ message: "User profile data", user });
@@ -59,4 +57,4 @@ router.get("/profile", authMiddleware, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
