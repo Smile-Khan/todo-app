@@ -1,9 +1,12 @@
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const authRoutes = require("./routes/authRoutes");
-const todoRoutes = require("./routes/todoRoutes");
-require("dotenv").config();
+// server.js
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import authRoutes from "./routes/authRoutes.js";
+import todoRoutes from "./routes/todoRoutes.js";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// ✅ Connect to MongoDB
+// MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -21,16 +24,16 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected Successfully!"))
   .catch((err) => console.error("❌ MongoDB Connection Failed:", err));
 
-// ✅ Routes
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/todos", todoRoutes);
 
-// ✅ Default route for the root URL
+// Default Route
 app.get("/", (req, res) => {
   res.send("Welcome to the Todo API! Use /api/todos to interact with the backend.");
 });
 
-// ✅ Start Server
+// Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
