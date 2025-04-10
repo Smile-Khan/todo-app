@@ -12,6 +12,7 @@ function TodoApp() {
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const BASE_URL = import.meta.env.VITE_API_URL; // Should be http://localhost:5000/api
 
   useEffect(() => {
     if (!token) {
@@ -20,7 +21,7 @@ function TodoApp() {
     }
 
     axios
-      .get("http://localhost:5000/api/todos", {
+      .get(`${BASE_URL}/todos`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setTodos(res.data))
@@ -37,7 +38,7 @@ function TodoApp() {
     if (!todo.trim()) return;
 
     axios
-      .post("http://localhost:5000/api/todos", { text: todo, priority, dueDate }, config)
+      .post(`${BASE_URL}/todos`, { text: todo, priority, dueDate }, config)
       .then((res) => {
         setTodos([...todos, res.data]);
         setTodo("");
@@ -49,7 +50,7 @@ function TodoApp() {
 
   const handleToggleComplete = (id, completed) => {
     axios
-      .put(`http://localhost:5000/api/todos/${id}`, { completed: !completed }, config)
+      .put(`${BASE_URL}/todos/${id}`, { completed: !completed }, config)
       .then((res) => {
         const updatedTodos = todos.map((todo) =>
           todo._id === id ? res.data : todo
@@ -61,7 +62,7 @@ function TodoApp() {
 
   const handleDeleteTodo = (id) => {
     axios
-      .delete(`http://localhost:5000/api/todos/${id}`, config)
+      .delete(`${BASE_URL}/todos/${id}`, config)
       .then(() => {
         const updatedTodos = todos.filter((todo) => todo._id !== id);
         setTodos(updatedTodos);

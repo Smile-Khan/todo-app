@@ -14,11 +14,14 @@ export const getTodos = async (req, res) => {
 export const createTodo = async (req, res) => {
   const { text, priority, dueDate } = req.body;
 
+  console.log("📥 Incoming createTodo request body:", req.body);
+  console.log("🧑‍💻 Authenticated user:", req.user);
+
   if (!text) return res.status(400).json({ error: "Text is required" });
 
   try {
     const todo = new Todo({
-      user: req.user.id,
+      user: req.user.userId, // ✅ FIXED HERE
       text,
       priority: priority || "Medium",
       dueDate: dueDate || null,
@@ -27,9 +30,12 @@ export const createTodo = async (req, res) => {
     const savedTodo = await todo.save();
     res.status(201).json(savedTodo);
   } catch (err) {
+    console.error("❌ Failed to create todo:", err);
     res.status(500).json({ error: "Failed to create todo" });
   }
 };
+
+  
 
 // Update a todo
 export const updateTodo = async (req, res) => {
